@@ -86,14 +86,18 @@ func (app *App) SetUserAgent(ua string) {
 
 // SetContentTypeJson 设置JSON格式
 func (app *App) SetContentTypeJson() {
-	app.httpParamsMode = httpParamsModeJson
-	app.httpHeader.Set("Content-Type", "application/json")
+	if app.httpMethod == http.MethodPost || app.httpMethod == http.MethodPut {
+		app.httpParamsMode = httpParamsModeJson
+		app.httpHeader.Set("Content-Type", "application/json")
+	}
 }
 
 // SetContentTypeForm 设置FORM格式
 func (app *App) SetContentTypeForm() {
-	app.httpParamsMode = httpParamsModeForm
-	app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
+	if app.httpMethod == http.MethodPost || app.httpMethod == http.MethodPut {
+		app.httpParamsMode = httpParamsModeForm
+		app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 }
 
 // SetParam 设置请求参数
