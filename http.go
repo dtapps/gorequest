@@ -98,6 +98,9 @@ func (app *App) SetContentTypeForm() {
 
 // SetParam 设置请求参数
 func (app *App) SetParam(key string, value interface{}) {
+	if key == "" {
+		panic("url is empty")
+	}
 	app.httpParams.Set(key, value)
 }
 
@@ -129,6 +132,14 @@ func (app *App) Request() (httpResponse Response, err error) {
 
 // 请求
 func request(app *App) (httpResponse Response, err error) {
+
+	// 判断网址
+	if app.httpUrl == "" {
+		app.httpUrl = app.Url
+	}
+	if app.httpUrl == "" {
+		return httpResponse, errors.New("没有设置Url")
+	}
 
 	// 创建 http 客户端
 	client := &http.Client{}
