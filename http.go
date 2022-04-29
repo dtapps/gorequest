@@ -1,8 +1,11 @@
 package gorequest
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -12,9 +15,9 @@ import (
 // Response 返回内容
 type Response struct {
 	RequestUrl            string      //【请求】链接
-	RequestParams         url.Values  //【请求】参数
+	RequestParams         Params      //【请求】参数
 	RequestMethod         string      //【请求】方式
-	RequestHeader         http.Header //【请求】头部
+	RequestHeader         Headers     //【请求】头部
 	ResponseHeader        http.Header //【返回】头部
 	ResponseStatus        string      //【返回】状态
 	ResponseStatusCode    int         //【返回】状态码
@@ -28,14 +31,14 @@ type App struct {
 	httpMethod      string   // 请求方法
 	httpHeader      Headers  // 请求头
 	httpParams      Params   // 请求参数
-	httpParamsMode  string   // 请求参数方式
 	responseContent Response // 返回内容
+	httpContentType string   // 请求内容类型
 	Error           error    // 错误
 }
 
 var (
-	httpParamsModeJson = "json"
-	httpParamsModeForm = "form"
+	httpParamsModeJson = "JSON"
+	httpParamsModeForm = "FORM"
 )
 
 // NewHttp 实例化
@@ -86,18 +89,12 @@ func (app *App) SetUserAgent(ua string) {
 
 // SetContentTypeJson 设置JSON格式
 func (app *App) SetContentTypeJson() {
-	if app.httpMethod == http.MethodPost || app.httpMethod == http.MethodPut {
-		app.httpParamsMode = httpParamsModeJson
-		app.httpHeader.Set("Content-Type", "application/json")
-	}
+	app.httpContentType = httpParamsModeJson
 }
 
 // SetContentTypeForm 设置FORM格式
 func (app *App) SetContentTypeForm() {
-	if app.httpMethod == http.MethodPost || app.httpMethod == http.MethodPut {
-		app.httpParamsMode = httpParamsModeForm
-		app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
-	}
+	app.httpContentType = httpParamsModeForm
 }
 
 // SetParam 设置请求参数
@@ -151,21 +148,35 @@ func request(app *App) (httpResponse Response, err error) {
 	// 赋值
 	httpResponse.RequestUrl = app.httpUrl
 	httpResponse.RequestMethod = app.httpMethod
+	httpResponse.RequestParams = app.httpParams
 
-	// 携带 form 参数
-	form := url.Values{}
-	if app.httpMethod == http.MethodPost && app.httpParamsMode == httpParamsModeForm {
+	var reqBody io.Reader
+
+	if app.httpMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
+		app.httpHeader.Set("Content-Type", "application/json")
+		jsonStr, err := json.Marshal(app.httpParams)
+		if err != nil {
+			return httpResponse, errors.New(fmt.Sprintf("解析出错 %s", err))
+		}
+		// 赋值
+		reqBody = bytes.NewBuffer(jsonStr)
+	}
+
+	if app.httpMethod == http.MethodPost && app.httpContentType == httpParamsModeForm {
+		// 携带 form 参数
+		form := url.Values{}
+		app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
 		if len(app.httpParams) > 0 {
 			for k, v := range app.httpParams {
 				form.Add(k, GetParamsString(v))
 			}
-			// 赋值
-			httpResponse.RequestParams = form
 		}
+		// 赋值
+		reqBody = strings.NewReader(form.Encode())
 	}
 
 	// 创建请求
-	req, err := http.NewRequest(app.httpMethod, app.httpUrl, strings.NewReader(form.Encode()))
+	req, err := http.NewRequest(app.httpMethod, app.httpUrl, reqBody)
 	if err != nil {
 		return httpResponse, errors.New(fmt.Sprintf("创建请求出错 %s", err))
 	}
@@ -178,8 +189,6 @@ func request(app *App) (httpResponse Response, err error) {
 				q.Add(k, GetParamsString(v))
 			}
 			req.URL.RawQuery = q.Encode()
-			// 赋值
-			httpResponse.RequestParams = q
 		}
 	}
 
@@ -188,9 +197,9 @@ func request(app *App) (httpResponse Response, err error) {
 		for key, value := range app.httpHeader {
 			req.Header.Set(key, value)
 		}
-		// 赋值
-		httpResponse.RequestHeader = req.Header
 	}
+	// 赋值
+	httpResponse.RequestHeader = app.httpHeader
 
 	// 发送请求
 	resp, err := client.Do(req)
