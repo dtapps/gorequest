@@ -69,5 +69,5 @@ var userAgentListMac = []string{
 func DtaUa() string {
 	str := runtime.Version()
 	content := str[2 : len(str)-0]
-	return fmt.Sprintf("DTA-Go/%v", content)
+	return fmt.Sprintf("Go-dta-request/%s/%v", Version, content)
 }
