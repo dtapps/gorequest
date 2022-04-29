@@ -1,2 +1,2 @@
-github.com/nilorg/sdk v0.0.0-20210429091026-95b6cdc95c84 h1:Nxk1uViXfb9MHgtHBlQFWzlQCsJbDQuotfTsAFcFP3o=
-github.com/nilorg/sdk v0.0.0-20210429091026-95b6cdc95c84/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
+github.com/dtapps/gostring v1.0.1 h1:J04kndQ08LOqb+H41s8PbMEgNtpheV9iTTl7DSPIZVk=
+github.com/dtapps/gostring v1.0.1/go.mod h1:BYYnZHrmwpFXkLpd9rQyV5YcChovVreacfcjyMKEwoU=

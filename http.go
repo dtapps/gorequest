@@ -22,13 +22,15 @@ type Response struct {
 	ResponseContentLength int64       //【返回】大小
 }
 
-type app struct {
+type App struct {
+	Url             string   // 全局请求地址，没有设置url才会使用
 	httpUrl         string   // 请求地址
 	httpMethod      string   // 请求方法
 	httpHeader      Headers  // 请求头
 	httpParams      Params   // 请求参数
 	httpParamsMode  string   // 请求参数方式
 	responseContent Response // 返回内容
+	Error           error    // 错误
 }
 
 var (
@@ -37,25 +39,25 @@ var (
 )
 
 // NewHttp 实例化
-func NewHttp() *app {
-	return &app{
+func NewHttp() *App {
+	return &App{
 		httpHeader: NewHeaders(),
 		httpParams: NewParams(),
 	}
 }
 
 // SetUrl 设置请求地址
-func (app *app) SetUrl(url string) {
+func (app *App) SetUrl(url string) {
 	app.httpUrl = url
 }
 
 // SetMethod 设置请求方式地址
-func (app *app) SetMethod(method string) {
+func (app *App) SetMethod(method string) {
 	app.httpMethod = method
 }
 
 // SetHeader 设置请求头
-func (app *app) SetHeader(key, value string) {
+func (app *App) SetHeader(key, value string) {
 	if key == "" {
 		panic("url is empty")
 	}
@@ -63,19 +65,19 @@ func (app *app) SetHeader(key, value string) {
 }
 
 // SetHeaders 批量设置请求头
-func (app *app) SetHeaders(headers Headers) {
+func (app *App) SetHeaders(headers Headers) {
 	for key, value := range headers {
 		app.httpHeader.Set(key, value)
 	}
 }
 
 // SetAuthToken 设置身份验证令牌
-func (app *app) SetAuthToken(token string) {
+func (app *App) SetAuthToken(token string) {
 	app.httpHeader.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 }
 
 // SetUserAgent 设置用户代理，空字符串就随机设置
-func (app *app) SetUserAgent(ua string) {
+func (app *App) SetUserAgent(ua string) {
 	if ua == "" {
 		ua = GetRandomUserAgent()
 	}
@@ -83,50 +85,50 @@ func (app *app) SetUserAgent(ua string) {
 }
 
 // SetContentTypeJson 设置JSON格式
-func (app *app) SetContentTypeJson() {
+func (app *App) SetContentTypeJson() {
 	app.httpParamsMode = httpParamsModeJson
 	app.httpHeader.Set("Content-Type", "application/json")
 }
 
 // SetContentTypeForm 设置FORM格式
-func (app *app) SetContentTypeForm() {
+func (app *App) SetContentTypeForm() {
 	app.httpParamsMode = httpParamsModeForm
 	app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
 }
 
 // SetParam 设置请求参数
-func (app *app) SetParam(key string, value interface{}) {
+func (app *App) SetParam(key string, value interface{}) {
 	app.httpParams.Set(key, value)
 }
 
 // SetParams 批量设置请求参数
-func (app *app) SetParams(params Params) {
+func (app *App) SetParams(params Params) {
 	for key, value := range params {
 		app.httpParams.Set(key, value)
 	}
 }
 
 // Get 发起GET请求
-func (app *app) Get() (httpResponse Response, err error) {
+func (app *App) Get() (httpResponse Response, err error) {
 	// 设置请求方法
 	app.httpMethod = http.MethodGet
 	return request(app)
 }
 
 // Post 发起POST请求
-func (app *app) Post() (httpResponse Response, err error) {
+func (app *App) Post() (httpResponse Response, err error) {
 	// 设置请求方法
 	app.httpMethod = http.MethodPost
 	return request(app)
 }
 
 // Request 发起请求
-func (app *app) Request() (httpResponse Response, err error) {
+func (app *App) Request() (httpResponse Response, err error) {
 	return request(app)
 }
 
 // 请求
-func request(app *app) (httpResponse Response, err error) {
+func request(app *App) (httpResponse Response, err error) {
 
 	// 创建 http 客户端
 	client := &http.Client{}
