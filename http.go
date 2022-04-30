@@ -5,12 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/dtapps/gotime"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
+
+const Version = "1.0.6"
 
 // Response 返回内容
 type Response struct {
@@ -18,11 +22,13 @@ type Response struct {
 	RequestParams         Params      //【请求】参数
 	RequestMethod         string      //【请求】方式
 	RequestHeader         Headers     //【请求】头部
+	RequestTime           time.Time   //【请求】时间
 	ResponseHeader        http.Header //【返回】头部
 	ResponseStatus        string      //【返回】状态
 	ResponseStatusCode    int         //【返回】状态码
 	ResponseBody          []byte      //【返回】内容
 	ResponseContentLength int64       //【返回】大小
+	ResponseTime          time.Time   //【返回】时间
 }
 
 type App struct {
@@ -54,7 +60,7 @@ func (app *App) SetUrl(url string) {
 	app.httpUrl = url
 }
 
-// SetMethod 设置请求方式地址
+// SetMethod 设置请求方式
 func (app *App) SetMethod(method string) {
 	app.httpMethod = method
 }
@@ -134,6 +140,9 @@ func (app *App) Request() (httpResponse Response, err error) {
 // 请求
 func request(app *App) (httpResponse Response, err error) {
 
+	// 赋值
+	httpResponse.RequestTime = gotime.Current().Time
+
 	// 判断网址
 	if app.httpUrl == "" {
 		app.httpUrl = app.Url
@@ -150,6 +159,7 @@ func request(app *App) (httpResponse Response, err error) {
 	httpResponse.RequestMethod = app.httpMethod
 	httpResponse.RequestParams = app.httpParams
 
+	// 请求内容
 	var reqBody io.Reader
 
 	if app.httpMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
@@ -217,6 +227,7 @@ func request(app *App) (httpResponse Response, err error) {
 	}
 
 	// 赋值
+	httpResponse.ResponseTime = gotime.Current().Time
 	httpResponse.ResponseStatus = resp.Status
 	httpResponse.ResponseStatusCode = resp.StatusCode
 	httpResponse.ResponseHeader = resp.Header
