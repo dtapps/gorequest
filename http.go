@@ -2,6 +2,7 @@ package gorequest
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-const Version = "1.0.11"
+const Version = "1.0.12"
 
 // Response 返回内容
 type Response struct {
@@ -32,19 +33,21 @@ type Response struct {
 }
 
 type App struct {
-	Uri             string   // 全局请求地址，没有设置url才会使用
-	debug           bool     // 是否开启调试模式
-	httpUri         string   // 请求地址
-	httpMethod      string   // 请求方法
-	httpHeader      Headers  // 请求头
-	httpParams      Params   // 请求参数
-	responseContent Response // 返回内容
-	httpContentType string   // 请求内容类型
-	Error           error    // 错误
+	Uri             string           // 全局请求地址，没有设置url才会使用
+	Error           error            // 错误
+	httpUri         string           // 请求地址
+	httpMethod      string           // 请求方法
+	httpHeader      Headers          // 请求头
+	httpParams      Params           // 请求参数
+	responseContent Response         // 返回内容
+	httpContentType string           // 请求内容类型
+	debug           bool             // 是否开启调试模式
+	p12Cert         *tls.Certificate // p12证书内容
 }
 
 var (
 	httpParamsModeJson = "JSON"
+	httpParamsModeXml  = "XML"
 	httpParamsModeForm = "FORM"
 )
 
@@ -109,6 +112,11 @@ func (app *App) SetContentTypeForm() {
 	app.httpContentType = httpParamsModeForm
 }
 
+// SetContentTypeXml 设置XML格式
+func (app *App) SetContentTypeXml() {
+	app.httpContentType = httpParamsModeXml
+}
+
 // SetParam 设置请求参数
 func (app *App) SetParam(key string, value interface{}) {
 	if key == "" {
@@ -122,6 +130,10 @@ func (app *App) SetParams(params Params) {
 	for key, value := range params {
 		app.httpParams.Set(key, value)
 	}
+}
+
+func (app *App) SetP12Cert(content *tls.Certificate) {
+	app.p12Cert = content
 }
 
 // Get 发起GET请求
@@ -160,11 +172,24 @@ func request(app *App) (httpResponse Response, err error) {
 		app.httpUri = app.Uri
 	}
 	if app.httpUri == "" {
-		return httpResponse, errors.New("没有设置Uri")
+		app.Error = errors.New("没有设置Uri")
+		return httpResponse, app.Error
 	}
 
 	// 创建 http 客户端
 	client := &http.Client{}
+
+	if app.p12Cert != nil {
+		transport := &http.Transport{
+			TLSClientConfig: &tls.Config{
+				Certificates: []tls.Certificate{*app.p12Cert},
+			},
+			DisableCompression: true,
+		}
+		client = &http.Client{
+			Transport: transport,
+		}
+	}
 
 	// 赋值
 	httpResponse.RequestUri = app.httpUri
@@ -178,7 +203,8 @@ func request(app *App) (httpResponse Response, err error) {
 		app.httpHeader.Set("Content-Type", "application/json")
 		jsonStr, err := json.Marshal(app.httpParams)
 		if err != nil {
-			return httpResponse, errors.New(fmt.Sprintf("解析出错 %s", err))
+			app.Error = errors.New(fmt.Sprintf("解析出错 %s", err))
+			return httpResponse, app.Error
 		}
 		// 赋值
 		reqBody = bytes.NewBuffer(jsonStr)
@@ -197,10 +223,19 @@ func request(app *App) (httpResponse Response, err error) {
 		reqBody = strings.NewReader(form.Encode())
 	}
 
+	if app.httpContentType == httpParamsModeXml {
+		reqBody, err = app.httpParams.MarshalXML()
+		if err != nil {
+			app.Error = errors.New(fmt.Sprintf("解析XML出错 %s", err))
+			return httpResponse, app.Error
+		}
+	}
+
 	// 创建请求
 	req, err := http.NewRequest(app.httpMethod, app.httpUri, reqBody)
 	if err != nil {
-		return httpResponse, errors.New(fmt.Sprintf("创建请求出错 %s", err))
+		app.Error = errors.New(fmt.Sprintf("创建请求出错 %s", err))
+		return httpResponse, app.Error
 	}
 
 	// GET 请求携带查询参数
@@ -226,7 +261,8 @@ func request(app *App) (httpResponse Response, err error) {
 	// 发送请求
 	resp, err := client.Do(req)
 	if err != nil {
-		return httpResponse, errors.New(fmt.Sprintf("请求出错 %s", err))
+		app.Error = errors.New(fmt.Sprintf("请求出错 %s", err))
+		return httpResponse, app.Error
 	}
 
 	// 最后关闭连接
@@ -235,7 +271,8 @@ func request(app *App) (httpResponse Response, err error) {
 	// 读取内容
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return httpResponse, errors.New(fmt.Sprintf("解析内容出错 %s", err))
+		app.Error = errors.New(fmt.Sprintf("解析内容出错 %s", err))
+		return httpResponse, app.Error
 	}
 
 	// 赋值
