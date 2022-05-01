@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const Version = "1.0.6"
+const Version = "1.0.7"
 
 // Response 返回内容
 type Response struct {
