@@ -14,11 +14,11 @@ import (
 	"time"
 )
 
-const Version = "1.0.10"
+const Version = "1.0.11"
 
 // Response 返回内容
 type Response struct {
-	RequestUrl            string      //【请求】链接
+	RequestUri            string      //【请求】链接
 	RequestParams         Params      //【请求】参数
 	RequestMethod         string      //【请求】方式
 	RequestHeader         Headers     //【请求】头部
@@ -32,8 +32,9 @@ type Response struct {
 }
 
 type App struct {
-	Url             string   // 全局请求地址，没有设置url才会使用
-	httpUrl         string   // 请求地址
+	Uri             string   // 全局请求地址，没有设置url才会使用
+	debug           bool     // 是否开启调试模式
+	httpUri         string   // 请求地址
 	httpMethod      string   // 请求方法
 	httpHeader      Headers  // 请求头
 	httpParams      Params   // 请求参数
@@ -55,9 +56,14 @@ func NewHttp() *App {
 	}
 }
 
-// SetUrl 设置请求地址
-func (app *App) SetUrl(url string) {
-	app.httpUrl = url
+// SetDebug 设置调试模式
+func (app *App) SetDebug() {
+	app.debug = true
+}
+
+// SetUri 设置请求地址
+func (app *App) SetUri(uri string) {
+	app.httpUri = uri
 }
 
 // SetMethod 设置请求方式
@@ -119,14 +125,20 @@ func (app *App) SetParams(params Params) {
 }
 
 // Get 发起GET请求
-func (app *App) Get() (httpResponse Response, err error) {
+func (app *App) Get(uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
 	// 设置请求方法
 	app.httpMethod = http.MethodGet
 	return request(app)
 }
 
 // Post 发起POST请求
-func (app *App) Post() (httpResponse Response, err error) {
+func (app *App) Post(uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
 	// 设置请求方法
 	app.httpMethod = http.MethodPost
 	return request(app)
@@ -144,18 +156,18 @@ func request(app *App) (httpResponse Response, err error) {
 	httpResponse.RequestTime = gotime.Current().Time
 
 	// 判断网址
-	if app.httpUrl == "" {
-		app.httpUrl = app.Url
+	if app.httpUri == "" {
+		app.httpUri = app.Uri
 	}
-	if app.httpUrl == "" {
-		return httpResponse, errors.New("没有设置Url")
+	if app.httpUri == "" {
+		return httpResponse, errors.New("没有设置Uri")
 	}
 
 	// 创建 http 客户端
 	client := &http.Client{}
 
 	// 赋值
-	httpResponse.RequestUrl = app.httpUrl
+	httpResponse.RequestUri = app.httpUri
 	httpResponse.RequestMethod = app.httpMethod
 	httpResponse.RequestParams = app.httpParams
 
@@ -186,7 +198,7 @@ func request(app *App) (httpResponse Response, err error) {
 	}
 
 	// 创建请求
-	req, err := http.NewRequest(app.httpMethod, app.httpUrl, reqBody)
+	req, err := http.NewRequest(app.httpMethod, app.httpUri, reqBody)
 	if err != nil {
 		return httpResponse, errors.New(fmt.Sprintf("创建请求出错 %s", err))
 	}
@@ -233,6 +245,11 @@ func request(app *App) (httpResponse Response, err error) {
 	httpResponse.ResponseHeader = resp.Header
 	httpResponse.ResponseBody = body
 	httpResponse.ResponseContentLength = resp.ContentLength
+
+	if app.debug == true {
+		fmt.Printf("gorequest：%+v\n", httpResponse)
+		fmt.Printf("gorequest.body：%s\n", httpResponse.ResponseBody)
+	}
 
 	return httpResponse, err
 }
