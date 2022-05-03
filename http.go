@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const Version = "1.0.12"
+const Version = "1.0.13"
 
 // Response 返回内容
 type Response struct {
@@ -32,6 +32,7 @@ type Response struct {
 	ResponseTime          time.Time   //【返回】时间
 }
 
+// App 实例
 type App struct {
 	Uri             string           // 全局请求地址，没有设置url才会使用
 	Error           error            // 错误
@@ -45,6 +46,7 @@ type App struct {
 	p12Cert         *tls.Certificate // p12证书内容
 }
 
+// 定义
 var (
 	httpParamsModeJson = "JSON"
 	httpParamsModeXml  = "XML"
@@ -132,6 +134,7 @@ func (app *App) SetParams(params Params) {
 	}
 }
 
+// SetP12Cert 设置证书
 func (app *App) SetP12Cert(content *tls.Certificate) {
 	app.p12Cert = content
 }

@@ -2,8 +2,10 @@ package gorequest
 
 import (
 	"net/url"
+	"strings"
 )
 
+// ResponseUrlParse 返回参数
 type ResponseUrlParse struct {
 	Uri      string `json:"uri"`       // URI
 	Urn      string `json:"urn"`       // URN
@@ -34,4 +36,12 @@ func UriParse(input string) (resp ResponseUrlParse) {
 	resp.RawQuery = parse.RawQuery
 	resp.Fragment = parse.Fragment
 	return
+}
+
+// UriFilterExcludeQueryString 过滤掉url中的参数
+func UriFilterExcludeQueryString(uri string) string {
+	URL, _ := url.Parse(uri)
+	clearUri := strings.ReplaceAll(uri, URL.RawQuery, "")
+	clearUri = strings.TrimRight(clearUri, "?")
+	return strings.TrimRight(clearUri, "/")
 }
