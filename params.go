@@ -13,6 +13,14 @@ func NewParams() Params {
 	return P
 }
 
+func NewParamsWith(params ...Params) Params {
+	p := make(Params)
+	for _, v := range params {
+		p.SetParams(v)
+	}
+	return p
+}
+
 func (p Params) Set(key string, value interface{}) {
 	p[key] = value
 }
