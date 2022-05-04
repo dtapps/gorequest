@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const Version = "1.0.15"
+const Version = "1.0.16"
 
 // Response 返回内容
 type Response struct {
@@ -172,6 +172,7 @@ func request(app *App) (httpResponse Response, err error) {
 	httpResponse.RequestUri = app.httpUri
 	httpResponse.RequestMethod = app.httpMethod
 	httpResponse.RequestParams = app.httpParams.DeepCopy()
+	httpResponse.RequestHeader = app.httpHeader.DeepCopy()
 
 	// 判断网址
 	if httpResponse.RequestUri == "" {
@@ -201,7 +202,7 @@ func request(app *App) (httpResponse Response, err error) {
 	var reqBody io.Reader
 
 	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
-		app.httpHeader.Set("Content-Type", "application/json")
+		httpResponse.RequestHeader.Set("Content-Type", "application/json")
 		jsonStr, err := json.Marshal(httpResponse.RequestParams)
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析出错 %s", err))
@@ -214,7 +215,7 @@ func request(app *App) (httpResponse Response, err error) {
 	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeForm {
 		// 携带 form 参数
 		form := url.Values{}
-		app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
+		httpResponse.RequestHeader.Set("Content-Type", "application/x-www-form-urlencoded")
 		if len(httpResponse.RequestParams) > 0 {
 			for k, v := range httpResponse.RequestParams {
 				form.Add(k, GetParamsString(v))
@@ -251,13 +252,11 @@ func request(app *App) (httpResponse Response, err error) {
 	}
 
 	// 设置请求头
-	if len(app.httpHeader) > 0 {
-		for key, value := range app.httpHeader {
+	if len(httpResponse.RequestHeader) > 0 {
+		for key, value := range httpResponse.RequestHeader {
 			req.Header.Set(key, value)
 		}
 	}
-	// 赋值
-	httpResponse.RequestHeader = app.httpHeader
 
 	// 发送请求
 	resp, err := client.Do(req)

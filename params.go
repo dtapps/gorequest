@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// Params 参数
 type Params map[string]interface{}
 
 // NewParams 新建参数
