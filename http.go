@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const Version = "1.0.14"
+const Version = "1.0.15"
 
 // Response 返回内容
 type Response struct {
@@ -197,7 +197,7 @@ func request(app *App) (httpResponse Response, err error) {
 	// 赋值
 	httpResponse.RequestUri = app.httpUri
 	httpResponse.RequestMethod = app.httpMethod
-	httpResponse.RequestParams = app.httpParams
+	httpResponse.RequestParams = app.httpParams.DeepCopy()
 
 	// 请求内容
 	var reqBody io.Reader
