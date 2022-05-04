@@ -169,12 +169,15 @@ func request(app *App) (httpResponse Response, err error) {
 
 	// 赋值
 	httpResponse.RequestTime = gotime.Current().Time
+	httpResponse.RequestUri = app.httpUri
+	httpResponse.RequestMethod = app.httpMethod
+	httpResponse.RequestParams = app.httpParams.DeepCopy()
 
 	// 判断网址
-	if app.httpUri == "" {
-		app.httpUri = app.Uri
+	if httpResponse.RequestUri == "" {
+		httpResponse.RequestUri = app.Uri
 	}
-	if app.httpUri == "" {
+	if httpResponse.RequestUri == "" {
 		app.Error = errors.New("没有设置Uri")
 		return httpResponse, app.Error
 	}
@@ -194,17 +197,12 @@ func request(app *App) (httpResponse Response, err error) {
 		}
 	}
 
-	// 赋值
-	httpResponse.RequestUri = app.httpUri
-	httpResponse.RequestMethod = app.httpMethod
-	httpResponse.RequestParams = app.httpParams.DeepCopy()
-
 	// 请求内容
 	var reqBody io.Reader
 
-	if app.httpMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
+	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
 		app.httpHeader.Set("Content-Type", "application/json")
-		jsonStr, err := json.Marshal(app.httpParams)
+		jsonStr, err := json.Marshal(httpResponse.RequestParams)
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析出错 %s", err))
 			return httpResponse, app.Error
@@ -213,12 +211,12 @@ func request(app *App) (httpResponse Response, err error) {
 		reqBody = bytes.NewBuffer(jsonStr)
 	}
 
-	if app.httpMethod == http.MethodPost && app.httpContentType == httpParamsModeForm {
+	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeForm {
 		// 携带 form 参数
 		form := url.Values{}
 		app.httpHeader.Set("Content-Type", "application/x-www-form-urlencoded")
-		if len(app.httpParams) > 0 {
-			for k, v := range app.httpParams {
+		if len(httpResponse.RequestParams) > 0 {
+			for k, v := range httpResponse.RequestParams {
 				form.Add(k, GetParamsString(v))
 			}
 		}
@@ -227,7 +225,7 @@ func request(app *App) (httpResponse Response, err error) {
 	}
 
 	if app.httpContentType == httpParamsModeXml {
-		reqBody, err = app.httpParams.MarshalXML()
+		reqBody, err = httpResponse.RequestParams.MarshalXML()
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析XML出错 %s", err))
 			return httpResponse, app.Error
@@ -235,17 +233,17 @@ func request(app *App) (httpResponse Response, err error) {
 	}
 
 	// 创建请求
-	req, err := http.NewRequest(app.httpMethod, app.httpUri, reqBody)
+	req, err := http.NewRequest(httpResponse.RequestMethod, httpResponse.RequestUri, reqBody)
 	if err != nil {
 		app.Error = errors.New(fmt.Sprintf("创建请求出错 %s", err))
 		return httpResponse, app.Error
 	}
 
 	// GET 请求携带查询参数
-	if app.httpMethod == http.MethodGet {
-		if len(app.httpParams) > 0 {
+	if httpResponse.RequestMethod == http.MethodGet {
+		if len(httpResponse.RequestParams) > 0 {
 			q := req.URL.Query()
-			for k, v := range app.httpParams {
+			for k, v := range httpResponse.RequestParams {
 				q.Add(k, GetParamsString(v))
 			}
 			req.URL.RawQuery = q.Encode()
