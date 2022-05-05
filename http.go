@@ -164,7 +164,7 @@ func (app *App) Request() (httpResponse Response, err error) {
 	return request(app)
 }
 
-// 请求
+// 请求接口
 func request(app *App) (httpResponse Response, err error) {
 
 	// 赋值
