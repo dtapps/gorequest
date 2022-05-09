@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dtapps/gotime"
+	"go.dtapp.net/gotime"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const Version = "1.0.16"
+const Version = "1.0.17"
 
 // Response 返回内容
 type Response struct {

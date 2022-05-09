@@ -1,8 +1,8 @@
-module github.com/dtapps/gorequest
+module go.dtapp.net/gorequest
 
 go 1.18
 
 require (
-	github.com/dtapps/gostring v1.0.1
-	github.com/dtapps/gotime v1.0.1
+	go.dtapp.net/gostring v1.0.3
+	go.dtapp.net/gotime v1.0.2
 )
