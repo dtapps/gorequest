@@ -11,11 +11,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strings"
 	"time"
 )
 
-const Version = "1.0.17"
+const Version = "1.0.18"
+
+var userAgentFormat = "DtApp-Request/%s (%s) GO/%s"
 
 // Response 返回内容
 type Response struct {
@@ -198,11 +201,20 @@ func request(app *App) (httpResponse Response, err error) {
 		}
 	}
 
+	httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, Version, runtime.GOOS, runtime.Version()))
+	switch app.httpContentType {
+	case httpParamsModeJson:
+		httpResponse.RequestHeader.Set("Content-Type", "application/json")
+	case httpParamsModeForm:
+		httpResponse.RequestHeader.Set("Content-Type", "application/x-www-form-urlencoded")
+	case httpParamsModeXml:
+		httpResponse.RequestHeader.Set("Content-Type", "text/xml")
+	}
+
 	// 请求内容
 	var reqBody io.Reader
 
 	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
-		httpResponse.RequestHeader.Set("Content-Type", "application/json")
 		jsonStr, err := json.Marshal(httpResponse.RequestParams)
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析出错 %s", err))
@@ -215,7 +227,6 @@ func request(app *App) (httpResponse Response, err error) {
 	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeForm {
 		// 携带 form 参数
 		form := url.Values{}
-		httpResponse.RequestHeader.Set("Content-Type", "application/x-www-form-urlencoded")
 		if len(httpResponse.RequestParams) > 0 {
 			for k, v := range httpResponse.RequestParams {
 				form.Add(k, GetParamsString(v))
