@@ -16,8 +16,6 @@ import (
 	"time"
 )
 
-const Version = "1.0.18"
-
 var userAgentFormat = "DtApp-Request/%s (%s) GO/%s"
 
 // Response 返回内容

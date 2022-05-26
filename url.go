@@ -45,3 +45,26 @@ func UriFilterExcludeQueryString(uri string) string {
 	clearUri = strings.TrimRight(clearUri, "?")
 	return strings.TrimRight(clearUri, "/")
 }
+
+// LenCode 编码
+func LenCode(s string) string {
+	escape := url.QueryEscape(s)
+	return escape
+}
+
+// DeCode 解码
+func DeCode(s string) string {
+	unescape, _ := url.QueryUnescape(s)
+	return unescape
+}
+
+// ParseQuery 获取URL参数 https://studygolang.com/articles/2876
+func ParseQuery(s string) map[string][]string {
+	u, err := url.Parse(s)
+	if err != nil {
+		return nil
+	}
+	urlParam := u.RawQuery
+	m, _ := url.ParseQuery(urlParam)
+	return m
+}
