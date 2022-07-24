@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go.dtapp.net/gotime"
+	"github.com/dtapps/gotime"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,8 +15,6 @@ import (
 	"strings"
 	"time"
 )
-
-var userAgentFormat = "DtApp-Request/%s (%s) GO/%s"
 
 // Response 返回内容
 type Response struct {
@@ -46,13 +44,6 @@ type App struct {
 	debug           bool             // 是否开启调试模式
 	p12Cert         *tls.Certificate // p12证书内容
 }
-
-// 定义
-var (
-	httpParamsModeJson = "JSON"
-	httpParamsModeXml  = "XML"
-	httpParamsModeForm = "FORM"
-)
 
 // NewHttp 实例化
 func NewHttp() *App {
@@ -199,7 +190,7 @@ func request(app *App) (httpResponse Response, err error) {
 		}
 	}
 
-	httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, Version, runtime.GOOS, runtime.Version()))
+	httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, runtime.GOOS, runtime.Version()))
 	switch app.httpContentType {
 	case httpParamsModeJson:
 		httpResponse.RequestHeader.Set("Content-Type", "application/json")

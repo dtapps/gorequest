@@ -2,24 +2,26 @@
 <a href="https://www.dtapp.net/">Golang Request</a>
 </h1>
 
-📦 Golang 请求组件
+📦 Golang 请求
 
 [comment]: <> (go)
-[![godoc](https://pkg.go.dev/badge/go.dtapp.net/gorequest?status.svg)](https://pkg.go.dev/go.dtapp.net/gorequest)
-[![goproxy.cn](https://goproxy.cn/stats/go.dtapp.net/gorequest/badges/download-count.svg)](https://goproxy.cn/stats/go.dtapp.net/gorequest)
-[![goreportcard.com](https://goreportcard.com/badge/go.dtapp.net/gorequest)](https://goreportcard.com/report/go.dtapp.net/gorequest)
-[![deps.dev](https://img.shields.io/badge/deps-go-red.svg)](https://deps.dev/go/go.dtapp.net/gorequest)
+[![godoc](https://pkg.go.dev/badge/github.com/dtapps/gorequest?status.svg)](https://pkg.go.dev/github.com/dtapps/gorequest)
+[![goproxy.cn](https://goproxy.cn/stats/github.com/dtapps/gorequest/badges/download-count.svg)](https://goproxy.cn/stats/github.com/dtapps/gorequest)
+[![goreportcard.com](https://goreportcard.com/badge/github.com/dtapps/gorequest)](https://goreportcard.com/report/github.com/dtapps/gorequest)
+[![deps.dev](https://img.shields.io/badge/deps-go-red.svg)](https://deps.dev/go/github.com%2Fdtapps%2Fgorequest)
 
-#### 安装使用
+#### 安装
 
 ```go
-go get -v -u go.dtapp.net/gorequest
+go get -v -u github.com/dtapps/gorequest
 ```
 
-#### 导入
+#### 使用
 
 ```go
-import (
-    "go.dtapp.net/gorequest"
-)
+package main
+
+func main()  {
+    
+}
 ```
