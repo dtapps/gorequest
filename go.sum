@@ -1,4 +1,4 @@
+github.com/dtapps/gostring v1.0.4 h1:71+ycsnvS+UkNx+15U6mL9oWwCIGEAAEtDmAfeTr64M=
+github.com/dtapps/gostring v1.0.4/go.mod h1:Ri5CruzyvydEMomzGPyzamXn9IWPeovn1WH4RLDMwMs=
 github.com/dtapps/gotime v1.0.3 h1:yzknDbqEOqntn3fbE2T9HRY5d03B81iIUkYKESuE8TY=
 github.com/dtapps/gotime v1.0.3/go.mod h1:lbp8pG/8aV3O+t7IuAjasL2WLBsZqLZG6Uw6KqSnox8=
-go.dtapp.net/gostring v1.0.3 h1:KSOq4D77/g5yZN/bqWfZ0kOOaPr/P1240vg03+XdENI=
-go.dtapp.net/gostring v1.0.3/go.mod h1:+ggrOvgQDQturi1QGsXEpyRN/ZPoRDaqhMujIk5lrgQ=
