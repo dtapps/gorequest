@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dtapps/gotime"
+	"go.dtapp.net/gotime"
 	"io"
 	"io/ioutil"
 	"net/http"
