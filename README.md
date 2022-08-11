@@ -2,7 +2,7 @@
 <a href="https://www.dtapp.net/">Golang Request</a>
 </h1>
 
-📦 Golang 请求
+📦 Golang Request
 
 [comment]: <> (go)
 [![godoc](https://pkg.go.dev/badge/go.dtapp.net/gorequest?status.svg)](https://pkg.go.dev/go.dtapp.net/gorequest)
