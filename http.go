@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go.dtapp.net/golog"
 	"go.dtapp.net/gostring"
 	"go.dtapp.net/gotime"
+	"go.dtapp.net/gotrace_id"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -207,7 +207,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 
 	// 跟踪编号
-	traceId := golog.GetTraceIdContext(ctx)
+	traceId := gotrace_id.GetTraceIdContext(ctx)
 	if traceId == "" {
 		traceId = gostring.GetUuId()
 	}
