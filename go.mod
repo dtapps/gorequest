@@ -6,7 +6,7 @@ require go.dtapp.net/gostring v1.0.6
 
 require (
 	go.dtapp.net/gotime v1.0.5
-	go.dtapp.net/gotrace_id v1.0.0
+	go.dtapp.net/gotrace_id v1.0.5
 )
 
 require (
