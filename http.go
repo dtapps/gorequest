@@ -37,16 +37,17 @@ type Response struct {
 
 // App 实例
 type App struct {
-	Uri             string           // 全局请求地址，没有设置url才会使用
-	Error           error            // 错误
-	httpUri         string           // 请求地址
-	httpMethod      string           // 请求方法
-	httpHeader      Headers          // 请求头
-	httpParams      Params           // 请求参数
-	responseContent Response         // 返回内容
-	httpContentType string           // 请求内容类型
-	debug           bool             // 是否开启调试模式
-	p12Cert         *tls.Certificate // p12证书内容
+	Uri                    string           // 全局请求地址，没有设置url才会使用
+	Error                  error            // 错误
+	httpUri                string           // 请求地址
+	httpMethod             string           // 请求方法
+	httpHeader             Headers          // 请求头
+	httpParams             Params           // 请求参数
+	responseContent        Response         // 返回内容
+	httpContentType        string           // 请求内容类型
+	debug                  bool             // 是否开启调试模式
+	p12Cert                *tls.Certificate // p12证书内容
+	afferentSdkUserVersion string           // 传入SDk版本
 }
 
 // NewHttp 实例化
@@ -135,6 +136,11 @@ func (app *App) SetP12Cert(content *tls.Certificate) {
 	app.p12Cert = content
 }
 
+// AfferentSdkUserVersion 传入SDk版本
+func (app *App) AfferentSdkUserVersion(afferentSdkUserVersion string) {
+	app.afferentSdkUserVersion = afferentSdkUserVersion
+}
+
 // Get 发起GET请求
 func (app *App) Get(ctx context.Context, uri ...string) (httpResponse Response, err error) {
 	if len(uri) == 1 {
@@ -195,7 +201,11 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 
 	// SDK版本
-	httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, runtime.GOOS, runtime.GOARCH, runtime.Version(), Version))
+	if app.afferentSdkUserVersion == "" {
+		httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, runtime.GOOS, runtime.GOARCH, runtime.Version(), Version))
+	} else {
+		httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, runtime.GOOS, runtime.GOARCH, runtime.Version(), Version)+"/"+app.afferentSdkUserVersion)
+	}
 
 	// 请求类型
 	switch app.httpContentType {
