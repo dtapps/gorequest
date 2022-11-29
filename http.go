@@ -22,6 +22,7 @@ import (
 
 // Response 返回内容
 type Response struct {
+	RequestId             string      //【请求】编号
 	RequestUri            string      //【请求】链接
 	RequestParams         Params      //【请求】参数
 	RequestMethod         string      //【请求】方式
@@ -218,11 +219,11 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 
 	// 跟踪编号
-	traceId := gotrace_id.GetTraceIdContext(ctx)
-	if traceId == "" {
-		traceId = gostring.GetUuId()
+	httpResponse.RequestId = gotrace_id.GetTraceIdContext(ctx)
+	if httpResponse.RequestId == "" {
+		httpResponse.RequestId = gostring.GetUuId()
 	}
-	httpResponse.RequestHeader.Set("X-Request-Id", traceId)
+	httpResponse.RequestHeader.Set("X-Request-Id", httpResponse.RequestId)
 
 	// 请求内容
 	var reqBody io.Reader
