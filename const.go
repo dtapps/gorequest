@@ -11,4 +11,4 @@ var (
 	httpParamsModeForm = "FORM"
 )
 
-const Version = "1.0.37"
+const Version = "1.0.38"
