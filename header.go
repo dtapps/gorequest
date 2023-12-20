@@ -23,36 +23,36 @@ func NewNewHeadersWith(headers ...Headers) Headers {
 }
 
 // Set 设置头部信息
-func (p Headers) Set(key, value string) {
-	p[key] = value
+func (h Headers) Set(key, value string) {
+	h[key] = value
 }
 
 // SetHeaders 批量设置头部信息
-func (p Headers) SetHeaders(headers Headers) {
+func (h Headers) SetHeaders(headers Headers) {
 	for key, value := range headers {
-		p[key] = value
+		h[key] = value
 	}
 }
 
 // GetQuery 获取头部信息
-func (p Headers) GetQuery() string {
+func (h Headers) GetQuery() string {
 	u := url.Values{}
-	for k, v := range p {
+	for k, v := range h {
 		u.Set(k, v)
 	}
 	return u.Encode()
 }
 
 // DeepCopy 深度复制
-func (p *Headers) DeepCopy() map[string]string {
+func (h *Headers) DeepCopy() map[string]string {
 	targetMap := make(map[string]string)
 
 	// 从原始复制到目标
-	for key, value := range *p {
+	for key, value := range *h {
 		targetMap[key] = value
 	}
 
 	// 重新申请一个新的map
-	*p = map[string]string{}
+	*h = map[string]string{}
 	return targetMap
 }

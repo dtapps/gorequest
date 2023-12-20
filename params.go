@@ -1,11 +1,5 @@
 package gorequest
 
-import (
-	"encoding/json"
-	"go.dtapp.net/gostring"
-	"log"
-)
-
 // Params 参数
 type Params map[string]interface{}
 
@@ -36,21 +30,9 @@ func (p Params) SetParams(params Params) {
 	}
 }
 
-// GetParamsString 获取参数字符串
-func GetParamsString(src interface{}) string {
-	switch src.(type) {
-	case string:
-		return src.(string)
-	case int, int8, int32, int64:
-	case uint8, uint16, uint32, uint64:
-	case float32, float64:
-		return gostring.ToString(src)
-	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return string(data)
+// Get 获取参数
+func (p Params) Get(key string) interface{} {
+	return p[key]
 }
 
 // DeepCopy 深度复制
