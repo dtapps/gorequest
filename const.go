@@ -10,5 +10,3 @@ var (
 	httpParamsModeXml  = "XML"
 	httpParamsModeForm = "FORM"
 )
-
-const Version = "1.0.38"
