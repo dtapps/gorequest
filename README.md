@@ -13,7 +13,7 @@
 #### 安装
 
 ```go
-go get -v -u go.dtapp.net/gorequest
+go get -v -u go.dtapp.net/gorequest@v1.0.40
 ```
 
 #### 使用
