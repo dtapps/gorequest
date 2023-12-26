@@ -1,15 +1,15 @@
 module go.dtapp.net/gorequest
 
-go 1.21
+go 1.21.5
 
 require (
 	github.com/MercuryEngineering/CookieMonster v0.0.0-20180304172713-1584578b3403
 	github.com/gin-gonic/gin v1.9.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	go.dtapp.net/gojson v1.0.2
-	go.dtapp.net/gostring v1.0.12
+	go.dtapp.net/gostring v1.0.13
 	go.dtapp.net/gotime v1.0.6
-	go.dtapp.net/gotrace_id v1.0.6
+	go.dtapp.net/gotrace_id v1.0.8
 )
 
 require (
@@ -41,6 +41,6 @@ require (
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

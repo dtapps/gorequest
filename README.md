@@ -1,5 +1,5 @@
 <h1>
-<a href="https://www.dtapp.net/">Golang Request</a>
+<a href="https://www.dtapp.net/">Golang</a>
 </h1>
 
 📦 Golang Request
@@ -12,8 +12,8 @@
 
 #### 安装
 
-```go
-go get -v -u go.dtapp.net/gorequest@v1.0.40
+```shell
+go get -v -u go.dtapp.net/gorequest@v1.0.41
 ```
 
 #### 使用
