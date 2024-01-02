@@ -56,6 +56,8 @@ type App struct {
 		systemOs     string // 系统类型
 		systemKernel string // 系统内核
 		goVersion    string // go版本
+		sdkVersion   string // sdk版本
+		sdkUserAgent string // sdk用户代理
 	}
 }
 
@@ -107,12 +109,21 @@ func (app *App) SetAuthToken(token string) {
 	app.httpHeader.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 }
 
-// SetUserAgent 设置用户代理，空字符串就随机设置
+// SetUserAgent 设置用户代理，传空字符串就随机设置
 func (app *App) SetUserAgent(ua string) {
 	if ua == "" {
 		ua = GetRandomUserAgent()
 	}
 	app.httpHeader.Set("User-Agent", ua)
+}
+
+// SetPassSdkVersion 传入SDK版本
+func (app *App) SetPassSdkVersion(sdkVersion string) {
+	if sdkVersion == "" {
+		app.httpHeader.Set("Sdk-User-Agent", app.config.sdkUserAgent)
+	} else {
+		app.httpHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat2, app.config.systemOs, app.config.systemKernel, app.config.goVersion, sdkVersion))
+	}
 }
 
 // SetContentTypeJson 设置JSON格式
@@ -230,7 +241,9 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 
 	// SDK版本
-	//httpResponse.RequestHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, app.config.systemOs, app.config.systemKernel, app.config.goVersion))
+	if app.config.sdkUserAgent != "" {
+		httpResponse.RequestHeader.Set("Sdk-User-Agent", app.config.sdkUserAgent)
+	}
 
 	// 请求类型
 	if app.httpContentType == "" {

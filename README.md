@@ -2,7 +2,7 @@
 <a href="https://www.dtapp.net/">Golang</a>
 </h1>
 
-📦 Golang Request
+📦 Golang 请求
 
 [comment]: <> (go)
 [![godoc](https://pkg.go.dev/badge/go.dtapp.net/gorequest?status.svg)](https://pkg.go.dev/go.dtapp.net/gorequest)
@@ -13,7 +13,7 @@
 #### 安装
 
 ```shell
-go get -v -u go.dtapp.net/gorequest@v1.0.43
+go get -v -u go.dtapp.net/gorequest@v1.0.44
 ```
 
 #### 使用

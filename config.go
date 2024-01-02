@@ -1,8 +1,8 @@
 package gorequest
 
 import (
+	"fmt"
 	"github.com/shirou/gopsutil/host"
-	"log"
 	"runtime"
 )
 
@@ -13,26 +13,18 @@ type systemResult struct {
 
 // 获取系统信息
 func getSystem() (result systemResult) {
-
-	hInfo, err := host.Info()
-	if err != nil {
-		log.Printf("getSystem.host.Info：%s\n", err)
-	}
-
+	hInfo, _ := host.Info()
 	result.SystemOs = hInfo.OS
 	result.SystemKernel = hInfo.KernelArch
-
 	return result
 }
 
 // 设置配置信息
 func (app *App) setConfig() {
-
 	info := getSystem()
-
 	app.config.systemOs = info.SystemOs
 	app.config.systemKernel = info.SystemKernel
-
 	app.config.goVersion = runtime.Version()
-
+	app.config.sdkVersion = Version
+	app.config.sdkUserAgent = fmt.Sprintf(userAgentFormat1, app.config.systemOs, app.config.systemKernel, app.config.goVersion)
 }
