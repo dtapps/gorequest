@@ -10,7 +10,6 @@ import (
 	"fmt"
 	cookiemonster "github.com/MercuryEngineering/CookieMonster"
 	"go.dtapp.net/gojson"
-	"go.dtapp.net/gostring"
 	"go.dtapp.net/gotime"
 	"go.dtapp.net/gotrace_id"
 	"io"
@@ -78,12 +77,16 @@ func (app *App) SetDebug() {
 
 // SetUri 设置请求地址
 func (app *App) SetUri(uri string) {
-	app.httpUri = uri
+	if uri != "" {
+		app.httpUri = uri
+	}
 }
 
 // SetMethod 设置请求方式
 func (app *App) SetMethod(method string) {
-	app.httpMethod = method
+	if method != "" {
+		app.httpMethod = method
+	}
 }
 
 // SetHeader 设置请求头
@@ -106,23 +109,22 @@ func (app *App) SetTlsVersion(minVersion, maxVersion uint16) {
 
 // SetAuthToken 设置身份验证令牌
 func (app *App) SetAuthToken(token string) {
-	app.httpHeader.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	if token != "" {
+		app.httpHeader.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	}
 }
 
 // SetUserAgent 设置用户代理，传空字符串就随机设置
 func (app *App) SetUserAgent(ua string) {
-	if ua == "" {
-		ua = GetRandomUserAgent()
+	if ua != "" {
+		app.httpHeader.Set("User-Agent", ua)
 	}
-	app.httpHeader.Set("User-Agent", ua)
 }
 
 // SetPassSdkVersion 传入SDK版本
 func (app *App) SetPassSdkVersion(sdkVersion string) {
-	if sdkVersion == "" {
-		app.httpHeader.Set("Sdk-User-Agent", app.config.sdkUserAgent)
-	} else {
-		app.httpHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat2, app.config.systemOs, app.config.systemKernel, app.config.goVersion, sdkVersion))
+	if sdkVersion != "" {
+		app.httpHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, app.config.systemOs, app.config.systemKernel, app.config.goVersion, sdkVersion))
 	}
 }
 
@@ -154,8 +156,10 @@ func (app *App) SetParams(params Params) {
 }
 
 // SetCookie 设置Cookie
-func (app *App) SetCookie(value string) {
-	app.httpCookie = value
+func (app *App) SetCookie(cookie string) {
+	if cookie != "" {
+		app.httpCookie = cookie
+	}
 }
 
 // SetP12Cert 设置证书
@@ -260,10 +264,9 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 
 	// 跟踪编号
 	httpResponse.RequestId = gotrace_id.GetTraceIdContext(ctx)
-	if httpResponse.RequestId == "" {
-		httpResponse.RequestId = gostring.GetUuId()
+	if httpResponse.RequestId != "" {
+		httpResponse.RequestHeader.Set("X-Request-Id", httpResponse.RequestId)
 	}
-	httpResponse.RequestHeader.Set("X-Request-Id", httpResponse.RequestId)
 
 	// 请求内容
 	var reqBody io.Reader

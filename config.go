@@ -1,7 +1,6 @@
 package gorequest
 
 import (
-	"fmt"
 	"github.com/shirou/gopsutil/host"
 	"runtime"
 )
@@ -26,5 +25,4 @@ func (app *App) setConfig() {
 	app.config.systemKernel = info.SystemKernel
 	app.config.goVersion = runtime.Version()
 	app.config.sdkVersion = Version
-	app.config.sdkUserAgent = fmt.Sprintf(userAgentFormat1, app.config.systemOs, app.config.systemKernel, app.config.goVersion)
 }
