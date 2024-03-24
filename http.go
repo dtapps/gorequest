@@ -51,13 +51,6 @@ type App struct {
 	debug                        bool             // 是否开启调试模式
 	p12Cert                      *tls.Certificate // p12证书内容
 	tlsMinVersion, tlsMaxVersion uint16           // TLS版本
-	config                       struct {
-		systemOs     string // 系统类型
-		systemKernel string // 系统内核
-		goVersion    string // go版本
-		sdkVersion   string // sdk版本
-		sdkUserAgent string // sdk用户代理
-	}
 }
 
 // NewHttp 实例化
@@ -66,7 +59,6 @@ func NewHttp() *App {
 		httpHeader: NewHeaders(),
 		httpParams: NewParams(),
 	}
-	app.setConfig()
 	return app
 }
 
@@ -118,13 +110,6 @@ func (app *App) SetAuthToken(token string) {
 func (app *App) SetUserAgent(ua string) {
 	if ua != "" {
 		app.httpHeader.Set("User-Agent", ua)
-	}
-}
-
-// SetPassSdkVersion 传入SDK版本
-func (app *App) SetPassSdkVersion(sdkVersion string) {
-	if sdkVersion != "" {
-		app.httpHeader.Set("Sdk-User-Agent", fmt.Sprintf(userAgentFormat, app.config.systemOs, app.config.systemKernel, app.config.goVersion, sdkVersion))
 	}
 }
 
@@ -242,11 +227,6 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 		client = &http.Client{
 			Transport: transport,
 		}
-	}
-
-	// SDK版本
-	if app.config.sdkUserAgent != "" {
-		httpResponse.RequestHeader.Set("Sdk-User-Agent", app.config.sdkUserAgent)
 	}
 
 	// 请求类型

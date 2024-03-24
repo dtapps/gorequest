@@ -3,7 +3,6 @@ package gorequest
 import (
 	"go.dtapp.net/gojson"
 	"go.dtapp.net/gostring"
-	"log"
 )
 
 // GetParamsString 获取参数字符串
@@ -16,9 +15,6 @@ func GetParamsString(src interface{}) string {
 	case float32, float64:
 		return gostring.ToString(src)
 	}
-	data, err := gojson.Marshal(src)
-	if err != nil {
-		log.Fatal(err)
-	}
+	data, _ := gojson.Marshal(src)
 	return string(data)
 }
