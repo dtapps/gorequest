@@ -13,15 +13,5 @@
 #### 安装
 
 ```shell
-go get -v -u go.dtapp.net/gorequest@v1.0.48
-```
-
-#### 使用
-
-```go
-package main
-
-func main()  {
-    
-}
+go get -v -u go.dtapp.net/gorequest@v1.0.49
 ```
