@@ -321,7 +321,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	// 请求内容
 	var reqBody io.Reader
 
-	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeJson {
+	if httpResponse.RequestMethod != http.MethodGet && app.httpContentType == httpParamsModeJson {
 		jsonStr, err := gojson.Marshal(httpResponse.RequestParams)
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析出错 %s", err))
@@ -334,7 +334,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 		reqBody = bytes.NewBuffer(jsonStr)
 	}
 
-	if httpResponse.RequestMethod == http.MethodPost && app.httpContentType == httpParamsModeForm {
+	if httpResponse.RequestMethod != http.MethodGet && app.httpContentType == httpParamsModeForm {
 		// 携带 form 参数
 		form := url.Values{}
 		for k, v := range httpResponse.RequestParams {
