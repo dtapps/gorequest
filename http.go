@@ -162,6 +162,16 @@ func (app *App) Get(ctx context.Context, uri ...string) (httpResponse Response, 
 	return request(app, ctx)
 }
 
+// Head 发起 HEAD 请求
+func (app *App) Head(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodHead
+	return request(app, ctx)
+}
+
 // Post 发起 POST 请求
 func (app *App) Post(ctx context.Context, uri ...string) (httpResponse Response, err error) {
 	if len(uri) == 1 {
@@ -182,6 +192,16 @@ func (app *App) Put(ctx context.Context, uri ...string) (httpResponse Response, 
 	return request(app, ctx)
 }
 
+// Patch 发起 PATCH 请求
+func (app *App) Patch(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodPatch
+	return request(app, ctx)
+}
+
 // Delete 发起 DELETE 请求
 func (app *App) Delete(ctx context.Context, uri ...string) (httpResponse Response, err error) {
 	if len(uri) == 1 {
@@ -189,6 +209,36 @@ func (app *App) Delete(ctx context.Context, uri ...string) (httpResponse Respons
 	}
 	// 设置请求方法
 	app.httpMethod = http.MethodDelete
+	return request(app, ctx)
+}
+
+// Connect 发起 CONNECT 请求
+func (app *App) Connect(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodConnect
+	return request(app, ctx)
+}
+
+// Options 发起 OPTIONS 请求
+func (app *App) Options(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodOptions
+	return request(app, ctx)
+}
+
+// Trace 发起 TRACE 请求
+func (app *App) Trace(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodTrace
 	return request(app, ctx)
 }
 
