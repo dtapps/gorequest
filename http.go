@@ -13,7 +13,7 @@ import (
 	"go.dtapp.net/gotime"
 	"go.dtapp.net/gotrace_id"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -152,7 +152,7 @@ func (app *App) SetP12Cert(content *tls.Certificate) {
 	app.p12Cert = content
 }
 
-// Get 发起GET请求
+// Get 发起 GET 请求
 func (app *App) Get(ctx context.Context, uri ...string) (httpResponse Response, err error) {
 	if len(uri) == 1 {
 		app.Uri = uri[0]
@@ -162,13 +162,33 @@ func (app *App) Get(ctx context.Context, uri ...string) (httpResponse Response, 
 	return request(app, ctx)
 }
 
-// Post 发起POST请求
+// Post 发起 POST 请求
 func (app *App) Post(ctx context.Context, uri ...string) (httpResponse Response, err error) {
 	if len(uri) == 1 {
 		app.Uri = uri[0]
 	}
 	// 设置请求方法
 	app.httpMethod = http.MethodPost
+	return request(app, ctx)
+}
+
+// Put 发起 PUT 请求
+func (app *App) Put(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodPut
+	return request(app, ctx)
+}
+
+// Delete 发起 DELETE 请求
+func (app *App) Delete(ctx context.Context, uri ...string) (httpResponse Response, err error) {
+	if len(uri) == 1 {
+		app.Uri = uri[0]
+	}
+	// 设置请求方法
+	app.httpMethod = http.MethodDelete
 	return request(app, ctx)
 }
 
@@ -195,8 +215,8 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	if httpResponse.RequestUri == "" {
 		app.Error = errors.New("没有设置Uri")
 		if app.debug {
-			log.Printf("{%s}------------------------\n", gotrace_id.GetTraceIdContext(ctx))
-			log.Printf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error)
+			slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", gotrace_id.GetTraceIdContext(ctx)))
+			slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 		}
 		return httpResponse, app.Error
 	}
@@ -256,7 +276,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析出错 %s", err))
 			if app.debug {
-				log.Printf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error)
+				slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 			}
 			return httpResponse, app.Error
 		}
@@ -279,7 +299,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 		if err != nil {
 			app.Error = errors.New(fmt.Sprintf("解析XML出错 %s", err))
 			if app.debug {
-				log.Printf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error)
+				slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 			}
 			return httpResponse, app.Error
 		}
@@ -290,7 +310,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	if err != nil {
 		app.Error = errors.New(fmt.Sprintf("创建请求出错 %s", err))
 		if app.debug {
-			log.Printf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error)
+			slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 		}
 		return httpResponse, app.Error
 	}
@@ -324,10 +344,10 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 
 	if app.debug {
-		log.Printf("{%s}请求Uri：%s %s\n", httpResponse.RequestId, httpResponse.RequestMethod, httpResponse.RequestUri)
-		log.Printf("{%s}请求Params Get：%+v\n", httpResponse.RequestId, req.URL.RawQuery)
-		log.Printf("{%s}请求Params Post：%+v\n", httpResponse.RequestId, reqBody)
-		log.Printf("{%s}请求Header：%+v\n", httpResponse.RequestId, req.Header)
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}请求Uri：%s %s\n", httpResponse.RequestId, httpResponse.RequestMethod, httpResponse.RequestUri))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}请求Params Get：%+v\n", httpResponse.RequestId, req.URL.RawQuery))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}请求Params Post：%+v\n", httpResponse.RequestId, reqBody))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}请求Header：%+v\n", httpResponse.RequestId, req.Header))
 	}
 
 	// 发送请求
@@ -335,7 +355,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	if err != nil {
 		app.Error = errors.New(fmt.Sprintf("请求出错 %s", err))
 		if app.debug {
-			log.Printf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error)
+			slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 		}
 		return httpResponse, app.Error
 	}
@@ -359,7 +379,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	if err != nil {
 		app.Error = errors.New(fmt.Sprintf("解析内容出错 %s", err))
 		if app.debug {
-			log.Printf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error)
+			slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 		}
 		return httpResponse, app.Error
 	}
@@ -373,10 +393,10 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	httpResponse.ResponseContentLength = resp.ContentLength
 
 	if app.debug {
-		log.Printf("{%s}返回Status：%s\n", httpResponse.RequestId, httpResponse.ResponseStatus)
-		log.Printf("{%s}返回Header：%+v\n", httpResponse.RequestId, httpResponse.ResponseHeader)
-		log.Printf("{%s}返回Body：%s\n", httpResponse.RequestId, httpResponse.ResponseBody)
-		log.Printf("{%s}------------------------\n", gotrace_id.GetTraceIdContext(ctx))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Status：%s\n", httpResponse.RequestId, httpResponse.ResponseStatus))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Header：%+v\n", httpResponse.RequestId, httpResponse.ResponseHeader))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Body：%s\n", httpResponse.RequestId, httpResponse.ResponseBody))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", gotrace_id.GetTraceIdContext(ctx)))
 	}
 
 	return httpResponse, err
