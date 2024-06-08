@@ -11,10 +11,12 @@ import (
 	cookiemonster "github.com/MercuryEngineering/CookieMonster"
 	"go.dtapp.net/gojson"
 	"go.dtapp.net/gotime"
+	"go.dtapp.net/gourl"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -36,6 +38,9 @@ type Response struct {
 	ResponseTime          time.Time   //【返回】时间
 }
 
+// LogFunc 日志函数
+type LogFunc func(response *LogResponse)
+
 // App 实例
 type App struct {
 	Uri                          string           // 全局请求地址，没有设置url才会使用
@@ -50,6 +55,8 @@ type App struct {
 	debug                        bool             // 是否开启调试模式
 	p12Cert                      *tls.Certificate // p12证书内容
 	tlsMinVersion, tlsMaxVersion uint16           // TLS版本
+	clientIP                     string           // 客户端IP
+	logFunc                      LogFunc          // 日志记录函数
 }
 
 // NewHttp 实例化
@@ -149,6 +156,13 @@ func (app *App) SetCookie(cookie string) {
 // SetP12Cert 设置证书
 func (app *App) SetP12Cert(content *tls.Certificate) {
 	app.p12Cert = content
+}
+
+// SetClientIP 设置客户端IP
+func (app *App) SetClientIP(clientIP string) {
+	if clientIP != "" {
+		app.clientIP = clientIP
+	}
 }
 
 // Get 发起 GET 请求
@@ -446,6 +460,31 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Header：%+v\n", httpResponse.RequestId, httpResponse.ResponseHeader))
 		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Body：%s\n", httpResponse.RequestId, httpResponse.ResponseBody))
 		slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", getIDContext(ctx)))
+	}
+
+	// 调用日志记录函数
+	if app.logFunc != nil {
+		go app.logFunc(&LogResponse{
+			//HttpResponse:       resp,
+			TraceID:            httpResponse.RequestId,
+			RequestID:          httpResponse.RequestId,
+			RequestTime:        httpResponse.RequestTime,
+			RequestUri:         httpResponse.RequestUri,
+			RequestUrl:         gourl.UriParse(httpResponse.RequestUri).Url,
+			RequestApi:         gourl.UriParse(httpResponse.RequestUri).Path,
+			RequestMethod:      httpResponse.RequestMethod,
+			RequestParams:      gojson.JsonEncodeNoError(httpResponse.RequestParams),
+			RequestHeader:      gojson.JsonEncodeNoError(httpResponse.RequestHeader),
+			RequestIP:          app.clientIP,
+			ResponseHeader:     gojson.JsonEncodeNoError(httpResponse.ResponseHeader),
+			ResponseStatusCode: httpResponse.ResponseStatusCode,
+			ResponseBody:       string(httpResponse.ResponseBody),
+			ResponseBodyJson:   gojson.JsonEncodeNoError(gojson.JsonDecodeNoError(string(httpResponse.ResponseBody))),
+			ResponseBodyXml:    gojson.XmlEncodeNoError(gojson.XmlDecodeNoError(httpResponse.ResponseBody)),
+			ResponseTime:       httpResponse.ResponseTime,
+			GoVersion:          runtime.Version(),
+			SdkVersion:         Version,
+		})
 	}
 
 	return httpResponse, err
