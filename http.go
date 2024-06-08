@@ -469,7 +469,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 
 	// 调用日志记录函数
 	if app.logFunc != nil {
-		go app.logFunc(&LogResponse{
+		app.logFunc(&LogResponse{
 			//HttpResponse:       resp,
 			TraceID:            httpResponse.RequestId,
 			RequestID:          httpResponse.RequestId,
