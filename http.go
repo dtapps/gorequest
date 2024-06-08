@@ -11,7 +11,6 @@ import (
 	cookiemonster "github.com/MercuryEngineering/CookieMonster"
 	"go.dtapp.net/gojson"
 	"go.dtapp.net/gotime"
-	"go.dtapp.net/gotrace_id"
 	"io"
 	"log/slog"
 	"net/http"
@@ -265,7 +264,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	if httpResponse.RequestUri == "" {
 		app.Error = errors.New("没有设置Uri")
 		if app.debug {
-			slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", gotrace_id.GetTraceIdContext(ctx)))
+			slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", getIDContext(ctx)))
 			slog.DebugContext(ctx, fmt.Sprintf("{%s}请求异常：%v\n", httpResponse.RequestId, app.Error))
 		}
 		return httpResponse, app.Error
@@ -313,7 +312,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 
 	// 跟踪编号
-	httpResponse.RequestId = gotrace_id.GetTraceIdContext(ctx)
+	httpResponse.RequestId = getIDContext(ctx)
 	if httpResponse.RequestId != "" {
 		httpResponse.RequestHeader.Set("X-Request-Id", httpResponse.RequestId)
 	}
@@ -446,7 +445,7 @@ func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Status：%s\n", httpResponse.RequestId, httpResponse.ResponseStatus))
 		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Header：%+v\n", httpResponse.RequestId, httpResponse.ResponseHeader))
 		slog.DebugContext(ctx, fmt.Sprintf("{%s}返回Body：%s\n", httpResponse.RequestId, httpResponse.ResponseBody))
-		slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", gotrace_id.GetTraceIdContext(ctx)))
+		slog.DebugContext(ctx, fmt.Sprintf("{%s}------------------------\n", getIDContext(ctx)))
 	}
 
 	return httpResponse, err
