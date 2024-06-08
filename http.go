@@ -260,6 +260,11 @@ func (app *App) Request(ctx context.Context) (httpResponse Response, err error) 
 	return request(app, ctx)
 }
 
+// SetLogFunc 设置日志记录方法
+func (app *App) SetLogFunc(logFunc LogFunc) {
+	app.logFunc = logFunc
+}
+
 // 请求接口
 func request(app *App, ctx context.Context) (httpResponse Response, err error) {
 
