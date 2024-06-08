@@ -95,6 +95,9 @@ go.dtapp.net/gostring
 # go.dtapp.net/gotime v1.0.11
 ## explicit; go 1.22
 go.dtapp.net/gotime
+# go.dtapp.net/gourl v1.0.0
+## explicit; go 1.19
+go.dtapp.net/gourl
 # golang.org/x/arch v0.8.0
 ## explicit; go 1.18
 golang.org/x/arch/x86/x86asm

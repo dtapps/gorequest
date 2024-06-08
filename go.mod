@@ -7,6 +7,7 @@ require (
 	go.dtapp.net/gojson v1.0.4
 	go.dtapp.net/gostring v1.0.15
 	go.dtapp.net/gotime v1.0.11
+	go.dtapp.net/gourl v1.0.0
 )
 
 require (
