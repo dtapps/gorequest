@@ -512,9 +512,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 
 	// 调用日志记录函数
 	if c.logFunc != nil {
-		c.logFunc(ctx, &LogResponse{
-			SpanID:             c.span.SpanContext().SpanID(),
-			TraceID:            c.span.SpanContext().TraceID(),
+		logData := LogResponse{
 			RequestID:          httpResponse.RequestID,
 			RequestTime:        httpResponse.RequestTime,
 			RequestUri:         httpResponse.RequestUri,
@@ -532,7 +530,12 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 			ResponseTime:       httpResponse.ResponseTime,
 			GoVersion:          runtime.Version(),
 			SdkVersion:         Version,
-		})
+		}
+		if c.span.SpanContext().IsValid() {
+			logData.SpanID = c.span.SpanContext().SpanID().String()
+			logData.TraceID = c.span.SpanContext().TraceID().String()
+		}
+		c.logFunc(ctx, &logData)
 	}
 
 	return httpResponse, err
