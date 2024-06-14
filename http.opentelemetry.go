@@ -8,6 +8,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// SetTrace 设置OpenTelemetry链路追踪
+// TODO: 等待完全删除
+func (c *App) SetTrace(trace bool) {
+}
+
 // TraceNewSpan 创建OpenTelemetry链路追踪状态
 func TraceNewSpan(ctx context.Context, name string, spanName string, spanValue string, version string, kind trace.SpanKind) (context.Context, trace.Span) {
 	return otel.Tracer(name, trace.WithInstrumentationVersion(version)).Start(ctx, spanName+spanValue, trace.WithSpanKind(kind))

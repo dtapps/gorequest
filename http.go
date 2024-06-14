@@ -16,7 +16,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
 	"io"
 	"net/http"
 	"net/http/httptrace"
@@ -61,8 +60,6 @@ type App struct {
 	tlsMinVersion, tlsMaxVersion uint16           // TLS版本
 	clientIP                     string           // 客户端IP
 	logFunc                      LogFunc          // 日志记录函数
-	trace                        bool             // OpenTelemetry链路追踪
-	span                         trace.Span       // OpenTelemetry链路追踪
 }
 
 // NewHttp 实例化
@@ -71,7 +68,6 @@ func NewHttp() *App {
 		httpHeader: NewHeaders(),
 		httpParams: NewParams(),
 	}
-	c.trace = true
 	return c
 }
 
