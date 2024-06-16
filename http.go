@@ -16,6 +16,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 	"io"
 	"net/http"
 	"net/http/httptrace"
@@ -287,7 +288,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 	}
 	if httpResponse.RequestUri == "" {
 		err = errors.New("没有请求地址")
-		TraceRecordError(ctx, err)
+		TraceRecordError(ctx, err, trace.WithStackTrace(true))
 		TraceSetStatus(ctx, codes.Error, err.Error())
 		return httpResponse, err
 	}
@@ -358,7 +359,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 	if httpResponse.RequestMethod != http.MethodGet && c.httpContentType == httpParamsModeJson {
 		jsonStr, err := gojson.Marshal(httpResponse.RequestParams)
 		if err != nil {
-			TraceRecordError(ctx, err)
+			TraceRecordError(ctx, err, trace.WithStackTrace(true))
 			TraceSetStatus(ctx, codes.Error, err.Error())
 			return httpResponse, err
 		}
@@ -379,7 +380,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 	if c.httpContentType == httpParamsModeXml {
 		reqBody, err = ToXml(httpResponse.RequestParams)
 		if err != nil {
-			TraceRecordError(ctx, err)
+			TraceRecordError(ctx, err, trace.WithStackTrace(true))
 			TraceSetStatus(ctx, codes.Error, err.Error())
 			return httpResponse, err
 		}
@@ -388,7 +389,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, httpResponse.RequestMethod, httpResponse.RequestUri, reqBody)
 	if err != nil {
-		TraceRecordError(ctx, err)
+		TraceRecordError(ctx, err, trace.WithStackTrace(true))
 		TraceSetStatus(ctx, codes.Error, err.Error())
 		return httpResponse, err
 	}
@@ -434,7 +435,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 	// 发送请求
 	resp, err := client.Do(req)
 	if err != nil {
-		TraceRecordError(ctx, err)
+		TraceRecordError(ctx, err, trace.WithStackTrace(true))
 		TraceSetStatus(ctx, codes.Error, err.Error())
 		return httpResponse, err
 	}
@@ -460,7 +461,7 @@ func request(c *App, ctx context.Context) (httpResponse Response, err error) {
 	// 读取内容
 	body, err := io.ReadAll(reader)
 	if err != nil {
-		TraceRecordError(ctx, err)
+		TraceRecordError(ctx, err, trace.WithStackTrace(true))
 		TraceSetStatus(ctx, codes.Error, err.Error())
 		return httpResponse, err
 	}
