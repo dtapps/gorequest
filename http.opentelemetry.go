@@ -32,31 +32,47 @@ func TraceEndSpan(span trace.Span) {
 
 // TraceSetAttributes 设置OpenTelemetry链路追踪属性
 func TraceSetAttributes(ctx context.Context, kv ...attribute.KeyValue) {
-	span := trace.SpanFromContext(ctx)
-	if span != nil {
-		span.SetAttributes(kv...)
-	}
+	TraceSpanSetAttributes(trace.SpanFromContext(ctx), kv...)
 }
 
-// TraceSetStatus 设置OpenTelemetry链路追踪状态
-func TraceSetStatus(ctx context.Context, code codes.Code, description string) {
-	span := trace.SpanFromContext(ctx)
-	if span != nil {
-		span.SetStatus(code, description)
+// TraceSpanSetAttributes 设置OpenTelemetry链路追踪属性
+func TraceSpanSetAttributes(span trace.Span, kv ...attribute.KeyValue) {
+	if span != nil && span.IsRecording() {
+		span.SetAttributes(kv...)
 	}
 }
 
 // TraceRecordError 记录OpenTelemetry链路追踪错误
 func TraceRecordError(ctx context.Context, err error, options ...trace.EventOption) {
-	span := trace.SpanFromContext(ctx)
-	if span != nil {
+	TraceSpanRecordError(trace.SpanFromContext(ctx), err, options...)
+}
+
+// TraceSpanRecordError 记录OpenTelemetry链路追踪错误
+func TraceSpanRecordError(span trace.Span, err error, options ...trace.EventOption) {
+	if span != nil && span.IsRecording() {
 		span.RecordError(err, options...)
+	}
+}
+
+// TraceSetStatus 设置OpenTelemetry链路追踪状态
+func TraceSetStatus(ctx context.Context, code codes.Code, description string) {
+	TraceSpanSetStatus(trace.SpanFromContext(ctx), code, description)
+}
+
+// TraceSpanSetStatus 设置OpenTelemetry链路追踪状态
+func TraceSpanSetStatus(span trace.Span, code codes.Code, description string) {
+	if span != nil && span.IsRecording() {
+		span.SetStatus(code, description)
 	}
 }
 
 // TraceGetTraceID 获取OpenTelemetry链路追踪TraceID
 func TraceGetTraceID(ctx context.Context) (traceID string) {
-	span := trace.SpanFromContext(ctx)
+	return TraceSpanGetTraceID(trace.SpanFromContext(ctx))
+}
+
+// TraceSpanGetTraceID 获取OpenTelemetry链路追踪TraceID
+func TraceSpanGetTraceID(span trace.Span) (traceID string) {
 	if span != nil && span.IsRecording() {
 		traceID = span.SpanContext().TraceID().String()
 	}
@@ -68,7 +84,11 @@ func TraceGetTraceID(ctx context.Context) (traceID string) {
 
 // TraceGetSpanID 获取OpenTelemetry链路追踪SpanID
 func TraceGetSpanID(ctx context.Context) (spanID string) {
-	span := trace.SpanFromContext(ctx)
+	return TraceSpanGetSpanID(trace.SpanFromContext(ctx))
+}
+
+// TraceSpanGetSpanID 获取OpenTelemetry链路追踪SpanID
+func TraceSpanGetSpanID(span trace.Span) (spanID string) {
 	if span != nil && span.IsRecording() {
 		spanID = span.SpanContext().SpanID().String()
 	}
